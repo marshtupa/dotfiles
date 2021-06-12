@@ -87,6 +87,21 @@ defaults write com.apple.finder AppleShowAllFiles -bool true
 defaults write com.apple.finder NewWindowTarget -string "PfHm"
 defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}"
 
+defaults write com.apple.symbolichotkeys.plist AppleSymbolicHotKeys -dict-add 160 "
+  <dict>
+    <key>enabled</key><true/>
+    <key>value</key><dict>
+      <key>type</key><string>standard</string>
+      <key>parameters</key>
+      <array>
+        <integer>65535</integer>
+        <integer>99</integer>
+        <integer>8388608</integer>
+      </array>
+    </dict>
+  </dict>
+"
+
 defaults write com.apple.symbolichotkeys.plist AppleSymbolicHotKeys -dict-add 32 "
   <dict>
     <key>enabled</key><true/>
