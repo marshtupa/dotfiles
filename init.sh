@@ -8,6 +8,9 @@ sudo -v
 # Keep-alive: update existing `sudo` time stamp until this script has finished
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
+# Allow to open apps from unidentified developers
+spctl --master-disable
+
 # install Brew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/marshtupa/.zprofile
@@ -16,6 +19,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # install ZSH and ohmyzsh
 brew install zsh
 /bin/bash -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+brew tap "homebrew/cask"
 
 brew install git
 brew install wget
@@ -25,6 +29,9 @@ brew install firefox
 brew install telegram
 brew install google-chrome
 brew install dockutil
+brew install mas
+brew install zoom
+brew install deepl
 
 #install VS code + setup command 'code'
 brew install visual-studio-code
@@ -32,7 +39,12 @@ cat << EOF >> ~/.bash_profile
 export PATH="\$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 EOF
 
-
+# Install YM
+wget "https://github.com/juvirez/yandex-music-app/releases/download/v1.6.0-alpha.1/yandex-music-app-1.6.0-alpha.1.dmg" -O ym.dmg
+hdiutil attach ym.dmg
+cp -R /Volumes/Yandex*/*.app /Applications
+cd /Application
+mv Yandex\ Music\ (Unofficial).app Yandex\ Music.app
 
 # Disable stealth mode
 defaults write com.apple.alf stealthenabled -bool false
@@ -196,7 +208,20 @@ dockutil --no-restart --add "/System/Applications/Mail.app"
 dockutil --no-restart --add "/System/Applications/Calendar.app"
 dockutil --no-restart --add "/System/Applications/Utilities/Terminal.app"
 dockutil --no-restart --add "/System/Applications/System Preferences.app"
+dockutil --no-restart --add "/Applications/Safari.app"
+dockutil --no-restart --add "/Applications/Notion.app"
+dockutil --no-restart --add "/Applications/Visual Studio Code.app"
+dockutil --no-restart --add "/Applications/Google Chrome.app"
+dockutil --no-restart --add "/Applications/Opera.app"
+dockutil --no-restart --add "/Applications/Firefox.app"
+dockutil --no-restart --add "/Applications/Telegram.app"
+dockutil --no-restart --add "/Applications/Yandex Music.app"
+dockutil --no-restart --add "/Applications/DeepL.app"
+
 
 for app in "Address Book" "Calendar" "Contacts" "Dock" "Finder" "Mail" "Safari" "SystemUIServer" "iCal"; do
   killall "${app}" &> /dev/null
 done
+
+mas lucky Xcode
+mas lucky "Ghostery Lite"
