@@ -10,24 +10,24 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # install Brew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/marshtupa/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # install ZSH and ohmyzsh
 brew install zsh
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-brew tap caskroom/cask
-brew tap caskroom/versions
+/bin/bash -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 brew install git
 brew install wget
-brew cask install opera
-brew cask install notion
-brew cask install firefox
-brew cask install telegram
-brew cask install google-chrome
-brew cask install dockutil
+brew install opera
+brew install notion
+brew install firefox
+brew install telegram
+brew install google-chrome
+brew install dockutil
 
 #install VS code + setup command 'code'
-brew cask install visual-studio-code
+brew install visual-studio-code
 cat << EOF >> ~/.bash_profile
 export PATH="\$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 EOF
@@ -35,7 +35,7 @@ EOF
 
 
 # Disable stealth mode
-defaults write /Library/Preferences/com.apple.alf stealthenabled -bool false
+defaults write com.apple.alf stealthenabled -bool false
 
 defaults delete com.apple.HIToolbox AppleEnabledInputSources
 defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>252</integer><key>Keyboard Layout Name</key><string>ABC</string></dict>'
@@ -164,12 +164,7 @@ defaults write com.Apple.Dock show-recents -bool false
 # Copy email addresses as `foo@example.com` instead of `Foo Bar <foo@example.com>` in Mail.app
 defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
 
-# Disable Spotlight indexing for any volume that gets mounted and has not yet
-# been indexed before.
-sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
-
 defaults write com.apple.Terminal "NSWindow Frame NSFontPanel" -string "1281 113 445 108 0 0 1792 1097 "
-
 
 # Show the main window when launching Activity Monitor
 defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
@@ -201,8 +196,6 @@ dockutil --no-restart --add "/System/Applications/Mail.app"
 dockutil --no-restart --add "/System/Applications/Calendar.app"
 dockutil --no-restart --add "/System/Applications/Utilities/Terminal.app"
 dockutil --no-restart --add "/System/Applications/System Preferences.app"
-
-
 
 for app in "Address Book" "Calendar" "Contacts" "Dock" "Finder" "Mail" "Safari" "SystemUIServer" "iCal"; do
   killall "${app}" &> /dev/null
