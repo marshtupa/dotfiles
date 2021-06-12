@@ -132,7 +132,7 @@ defaults write com.apple.symbolichotkeys.plist AppleSymbolicHotKeys -dict-add 34
 "
 
 # Input Sources > Select next source in Input menu : Cmd + Space
-defaults write com.apple.symbolichotkeys.plist AppleSymbolicHotKeys -dict-add 61 "
+defaults write com.apple.symbolichotkeys.plist AppleSymbolicHotKeys -dict-add 60 "
   <dict>
     <key>enabled</key><true/>
     <key>value</key><dict>
