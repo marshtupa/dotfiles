@@ -51,7 +51,10 @@ defaults write com.apple.alf stealthenabled -bool false
 
 defaults delete com.apple.HIToolbox AppleEnabledInputSources
 defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>252</integer><key>Keyboard Layout Name</key><string>ABC</string></dict>'
-defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>19456</integer><key>Keyboard Layout Name</key><string>Russian</string></dict>'
+defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>19458</integer><key>Keyboard Layout Name</key><string>RussianWin</string></dict>'
+
+defaults write com.apple.HIToolbox AppleCapsLockPressAndHoldToggleOff -bool false
+
 
 # Disable audio feedback when volume is changed
 defaults write com.apple.sound.beep.feedback -bool false
