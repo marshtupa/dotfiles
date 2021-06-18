@@ -55,6 +55,14 @@ defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '<dict><k
 
 defaults write com.apple.HIToolbox AppleCapsLockPressAndHoldToggleOff -bool false
 
+defaults write "Apple Global Domain" AppleEnableMouseSwipeNavigateWithScrolls -bool true
+
+defaults write com.apple.AppleMultitouchMouse MouseButtonMode -String "TwoButton"
+defaults write com.apple.AppleMultitouchMouse MouseOneFingerDoubleTapGesture -bool true
+
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseButtonMode -String "TwoButton"
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseOneFingerDoubleTapGesture -bool true
+
 
 # Disable audio feedback when volume is changed
 defaults write com.apple.sound.beep.feedback -bool false
