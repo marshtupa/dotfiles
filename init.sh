@@ -23,7 +23,7 @@ brew tap "homebrew/cask"
 
 brew install git
 brew install wget
-brew install opera
+# brew install opera
 brew install notion
 brew install firefox
 brew install telegram
@@ -40,10 +40,10 @@ export PATH="\$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/
 EOF
 
 # Install YM
-wget "https://github.com/juvirez/yandex-music-app/releases/download/v1.6.0-alpha.1/yandex-music-app-1.6.0-alpha.1.dmg" -O ym.dmg
+wget "https://github.com/juvirez/yandex-music-app/releases/download/v1.6.2/Yandex-Music-Unofficial-1.6.2-arm64.dmg" -O ym.dmg
 hdiutil attach ym.dmg
 cp -R /Volumes/Yandex*/*.app /Applications
-cd /Application
+cd /Applications
 mv Yandex\ Music\ (Unofficial).app Yandex\ Music.app
 
 # Disable stealth mode
