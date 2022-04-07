@@ -28,8 +28,8 @@ brew install notion
 brew install firefox
 brew install telegram
 brew install google-chrome
-brew install dockutil
-brew install mas
+# brew install dockutil
+# brew install mas
 brew install zoom
 brew install deepl
 
@@ -40,11 +40,11 @@ export PATH="\$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/
 EOF
 
 # Install YM
-wget "https://github.com/juvirez/yandex-music-app/releases/download/v1.6.2/Yandex-Music-Unofficial-1.6.2-arm64.dmg" -O ym.dmg
-hdiutil attach ym.dmg
-cp -R /Volumes/Yandex*/*.app /Applications
-cd /Applications
-mv Yandex\ Music\ (Unofficial).app Yandex\ Music.app
+# wget "https://github.com/juvirez/yandex-music-app/releases/download/v1.6.2/Yandex-Music-Unofficial-1.6.2-arm64.dmg" -O ym.dmg
+# hdiutil attach ym.dmg
+# cp -R /Volumes/Yandex*/*.app /Applications
+# cd /Applications
+# mv Yandex\ Music\ (Unofficial).app Yandex\ Music.app
 
 # Disable stealth mode
 defaults write com.apple.alf stealthenabled -bool false
@@ -229,28 +229,27 @@ defaults write com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
 # Kill affected applications                                                  #
 ###############################################################################
 
-dockutil --no-restart --remove all
-dockutil --no-restart --add "/System/Applications/Mail.app"
-dockutil --no-restart --add "/System/Applications/Calendar.app"
-dockutil --no-restart --add "/System/Applications/Remainders.app"
-dockutil --no-restart --add "/System/Applications/Notes.app"
-dockutil --no-restart --add "/System/Applications/FaceTime.app"
-dockutil --no-restart --add "/System/Applications/Utilities/Terminal.app"
-dockutil --no-restart --add "/System/Applications/System Preferences.app"
-dockutil --no-restart --add "/Applications/Safari.app"
-dockutil --no-restart --add "/Applications/Notion.app"
-dockutil --no-restart --add "/Applications/Visual Studio Code.app"
-dockutil --no-restart --add "/Applications/Google Chrome.app"
-dockutil --no-restart --add "/Applications/Opera.app"
-dockutil --no-restart --add "/Applications/Firefox.app"
-dockutil --no-restart --add "/Applications/Telegram.app"
-dockutil --no-restart --add "/Applications/Yandex Music.app"
-dockutil --no-restart --add "/Applications/DeepL.app"
+# dockutil --no-restart --remove all
+# dockutil --no-restart --add "/System/Applications/Mail.app"
+# dockutil --no-restart --add "/System/Applications/Calendar.app"
+# dockutil --no-restart --add "/System/Applications/Remainders.app"
+# dockutil --no-restart --add "/System/Applications/Notes.app"
+# dockutil --no-restart --add "/System/Applications/FaceTime.app"
+# dockutil --no-restart --add "/System/Applications/Utilities/Terminal.app"
+# dockutil --no-restart --add "/System/Applications/System Preferences.app"
+# dockutil --no-restart --add "/Applications/Safari.app"
+# dockutil --no-restart --add "/Applications/Notion.app"
+# dockutil --no-restart --add "/Applications/Visual Studio Code.app"
+# dockutil --no-restart --add "/Applications/Google Chrome.app"
+# dockutil --no-restart --add "/Applications/Opera.app"
+# dockutil --no-restart --add "/Applications/Firefox.app"
+# dockutil --no-restart --add "/Applications/Telegram.app"
+# dockutil --no-restart --add "/Applications/Yandex Music.app"
+# dockutil --no-restart --add "/Applications/DeepL.app"
 
 
 for app in "Address Book" "Calendar" "Contacts" "Dock" "Finder" "Mail" "Safari" "SystemUIServer" "iCal"; do
   killall "${app}" &> /dev/null
 done
 
-mas lucky Xcode
-mas lucky "Ghostery Lite"
+# mas lucky Xcode
