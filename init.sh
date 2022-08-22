@@ -32,6 +32,8 @@ brew install google-chrome
 # brew install mas
 brew install zoom
 brew install deepl
+brew install --cask yandex-music-unofficial
+
 
 #install VS code + setup command 'code'
 brew install visual-studio-code
