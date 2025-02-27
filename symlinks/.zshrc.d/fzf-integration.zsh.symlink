@@ -8,7 +8,7 @@ source <(fzf --zsh)
 
 # Custom fzf functions
 eza-files-for-nvigation() {
-    eza -d ..; eza; eza -a | grep '^\.' | grep -vE '^(\.|\.{2})$'
+    eza -d ..; eza; eza --all | grep '^\.' | sed 's/ -> .*$//'
 }
 
 fzf-viewer() {
