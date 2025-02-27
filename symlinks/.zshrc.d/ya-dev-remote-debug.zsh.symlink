@@ -1,0 +1,97 @@
+########################################### DEBUG APPs ###########################################
+
+## B2B-payments
+ssh_payments_pids=()
+
+function payments-debug() {
+
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9020:127.0.0.1:8000 nobody@marketb2bpayments_box.testing-market-market-b2b-payments-20.sas.yp-c.yandex.net \""
+    sleep 1
+    ssh_payments_pids+=( "$!" )
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9021:127.0.0.1:8000 nobody@marketb2bpayments_box.testing-market-market-b2b-payments-83.vla.yp-c.yandex.net \""
+    sleep 1
+    ssh_payments_pids+=( "$!" )
+    echo "SSH connections started. PID: ${ssh_payments_pids[*]}"
+}
+
+
+## Actualizer
+ssh_actualizer_pids=()
+
+function actualizer-debug() {
+
+    # Удаление старых ключей из known_hosts
+    # ssh-keygen -R actualizer_box.testing-market-actualizer-actualizer-31.sas.yp-c.yandex.net
+    # ssh-keygen -R actualizer_box.testing-market-actualizer-actualizer-63.sas.yp-c.yandex.net
+    # ssh-keygen -R actualizer_box.testing-market-actualizer-actualizer-34.vla.yp-c.yandex.net
+    # ssh-keygen -R actualizer_box.testing-market-actualizer-actualizer-95.vla.yp-c.yandex.net
+
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9001:127.0.0.1:8282 nobody@actualizer_box.testing-market-actualizer-actualizer-31.sas.yp-c.yandex.net -A\""
+    sleep 1
+    ssh_actualizer_pids+=( "$!" )
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9002:127.0.0.1:8282 nobody@actualizer_box.testing-market-actualizer-actualizer-63.sas.yp-c.yandex.net -A\""
+    sleep 1
+    ssh_actualizer_pids+=( "$!" )
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9003:127.0.0.1:8282 nobody@actualizer_box.testing-market-actualizer-actualizer-34.vla.yp-c.yandex.net -A\""
+    sleep 1
+    ssh_actualizer_pids+=( "$!" )
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9004:127.0.0.1:8282 nobody@actualizer_box.testing-market-actualizer-actualizer-95.vla.yp-c.yandex.net -A\""
+    sleep 1
+    ssh_actualizer_pids+=( "$!" )
+
+    echo "SSH connections started. PIDs: ${ssh_actualizer_pids[*]}"
+}
+
+function actualizer-mulitest-debug() {
+    ### для 9го мультитестинга
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9001:127.0.0.1:8282 nobody@actualizer_box.testing-market-actualizer-mini-10.sas.yp-c.yandex.net -A\""
+    sleep 1
+    ssh_actualizer_pids+=( "$!" )
+
+    echo "SSH connections started. PIDs: ${ssh_actualizer_pids[*]}"
+}
+
+## B2B-orders
+ssh_orders_pids=()
+
+function orders-debug() {
+
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9030:127.0.0.1:8000 nobody@2a02:6b8:c24:1148:0:553d:1008:2 \""
+    sleep 1
+    ssh_orders_pids+=( "$!" )
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9031:127.0.0.1:8000 nobody@marketb2borders_box.testing-market-market-b2b-orders-15.vla.yp-c.yandex.net \""
+    sleep 1
+    ssh_orders_pids+=( "$!" )
+    echo "SSH connections started. PID: ${ssh_orders_pids[*]}"
+}
+
+## B2B-Office
+ssh_office_pids=()
+
+function office-debug() {
+
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9010:127.0.0.1:8000 nobody@b2boffice_box.pzebubdomnoqn2pb.sas.yp-c.yandex.net \""
+    sleep 1
+    ssh_office_pids+=( "$!" )
+    echo "SSH connections started. PID: ${ssh_office_pids[*]}"
+}
+
+## MBI-Report-Generator
+
+function mbi_report_generator-debug() {
+    ssh_mbi_report_generator_pids=()
+
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9040:127.0.0.1:100 nobody@bczzxdrjwq2kuwjf.sas.yp-c.yandex.net  \""
+    sleep 1
+    ssh_mbi_report_generator_pids+=( "$!" )
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9041:127.0.0.1:100 nobody@se2dhongni66vqex.sas.yp-c.yandex.net  \""
+    sleep 1
+    ssh_mbi_report_generator_pids+=( "$!" )
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9042:127.0.0.1:82 nobody@crvgwpyn4ibflnme.vla.yp-c.yandex.net  \""
+    sleep 1
+    ssh_mbi_report_generator_pids+=( "$!" )
+    osascript -e "tell application \"Terminal\" to do script \"ssh -L 9043:127.0.0.1:82 nobody@mqofyitrl657vyr7.vla.yp-c.yandex.net  \""
+    sleep 1
+    ssh_mbi_report_generator_pids+=( "$!" )
+    echo "SSH connections started. PID: ${ssh_mbi_report_generator_pids[*]}"
+}

@@ -1,0 +1,27 @@
+export DOCKER_HOST=unix://$HOME/.colima/docker.sock
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+
+########################################### JAVA ###############################################
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+
+function arc-links-to-md() {
+    # Проверяем, есть ли аргументы
+    if [ "$#" -eq 0 ]; then
+        echo "Введите ссылки (по одной в строке), затем Ctrl+D для завершения ввода:"
+        input=()
+        while read -r line; do
+            input+=("$line")
+        done
+    else
+        input=("$@")
+    fi
+
+    # Обрабатываем ссылки и формируем Markdown-список
+    for url in "${input[@]}"; do
+        if [[ $url =~ https://st.yandex-team.ru/([A-Za-z0-9-]+) ]]; then
+            id="${BASH_REMATCH[1]}"
+            echo "- [$id]($url)"
+        fi
+    done
+}

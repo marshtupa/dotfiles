@@ -1,0 +1,89 @@
+export ARCADIA_ROOT=/Users/marshtupa/arcadia
+export ARCADIA_PATH=/Users/marshtupa/arcadia
+
+
+
+function delete_arc_branches() {
+    # Получаем список всех веток
+    branches=$(arc branch -a)
+
+    # Проходим по каждой строке вывода
+    while read -r branch; do
+        # Удаляем ведущие и конечные пробелы
+        branch=$(echo "$branch" | xargs)
+
+        # Проверяем, что это не пустая строка и не содержит пробелов
+        if [[ -n "$branch" && "$branch" != *" "* && "$branch" != *"*"* ]]; then
+            # Удаляем ветку
+            echo "Удаляю ветку: $branch"
+            arc branch -D "$branch"
+        fi
+    done <<< "$branches"
+}
+
+kill_arc() {
+    local file="/Users/marshtupa/.arc/store/.arc/LOCK_client"
+
+    if [[ -z "$file" ]]; then
+        echo "Ошибка: не указан файл для проверки lsof."
+        return 1
+    fi
+
+    # Получаем список уникальных PID'ов, используя lsof.
+    # Пропускаем заголовок (первая строка) и извлекаем второй столбец (PID).
+    local pids
+    pids=$(lsof "$file" 2>/dev/null | awk 'NR>1 {print $2}' | sort -u)
+
+    if [[ -z "$pids" ]]; then
+        echo "Нет процессов, использующих файл: $file"
+        return 0
+    fi
+
+    echo "Найдены следующие PID'ы: $pids"
+    
+    for pid in $pids; do
+        # Проверяем, существует ли процесс
+        if kill -0 "$pid" 2>/dev/null; then
+            if kill "$pid" 2>/dev/null; then
+                echo "Процесс с PID $pid успешно завершён."
+            else
+                echo "Не удалось завершить процесс с PID $pid."
+            fi
+        else
+            echo "Процесс с PID $pid не существует или уже завершён."
+        fi
+    done
+}
+
+function build() {
+    ya make -ttt --jvm-args="-Dio.netty.eventLoopThreads=1" --test-threads=1
+
+    if [ $? -eq 0 ]
+    then
+        osascript -e 'display notification "SUCCESS" with title "ya make -tt" sound name "Funk"'
+    else
+        osascript -e 'display notification "FAILED" with title "ya make -tt" sound name "Sosumi"'
+    fi
+}
+
+function build_tg() {
+    ya make -ttt --jvm-args="-Dio.netty.eventLoopThreads=1" --test-threads=1
+
+    if [ $? -eq 0 ]
+    then
+        ya notify "SUCCESS"
+    else
+        ya notify "FAILED"
+    fi
+}
+
+function checkstyle() {
+    find ./ -name '*.java' | grep -v /dbschema/|xargs checkstyle -c ~/arcadia/devtools/jstyle-runner/java/resources/yandex_checks_strict.xml
+
+    if [ $? -eq 0 ]
+    then
+        osascript -e 'display notification "SUCCESS" with title "ya make -tt" sound name "Funk"'
+    else
+        osascript -e 'display notification "FAILED" with title "ya make -tt" sound name "Sosumi"'
+    fi
+}

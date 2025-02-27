@@ -1,0 +1,228 @@
+
+########################################### TVM CURLs ###########################################
+
+function test-documents-hello-world() {
+    DST=2055741 SRC=2055741 tvm_curl "https://market-b2b-documents.tst.vs.market.yandex.net/helloWorld" -v
+}
+
+function test-payments-payment() {
+    orderId="$1"
+    DST=2043612 SRC=2043612 tvm_curl "https://market-b2b-payments.tst.vs.market.yandex.net/v1/orders/${orderId}/payment" \
+         -H "User-Ticket: 3:user:COnyARDd8Mq6BhpbCgkI98HEkaXU_gEQ98HEkaXU_gEaEm9hdXRoOmdyYW50X3h0b2tlbhoecGFzc3BvcnQ6Z2V0X2RlYnVnX3VzZXJfdGlja2V0INzdfCgCMgl0OjUyNjgwNTdAAQ:I-jtCRc-twtqUe3QKAQjakzWmbEqDNaPsl-kQrTj7q3DdRWI8vyEaRj_E3HE5PVwfyc4yYDUmhuPvaar8EJOKoNcS10nY7nicK4vZY63oaqza_naY2ZvnvWFrLBtxwxwPTor-DbyToN97G_ZnZHCXeouLOvBw5_TbYHCDH-wgOVcUwEqLEGSShzpDvmmMDNpZSxYPp14enuA5LyJTb1YUHSI3-CO5neW6WDew7Zd8-kmYt-QpSAwp0ULK-9zPpj70Y4XOkdnEDxcP6TA9gO6X-nrfeTiYTyuFuwkLI-g38lseBKJ6KI9qIyXzzVTqag7_AEOkeXCjq4L_z5rPnDKLA" -v | jq
+}
+
+function test-payments-postpaid() {
+    DST=2043612 SRC=2043612 tvm_curl -v \
+        -X POST 'https://market-b2b-payments.tst.vs.market.yandex.net/postpaid/manual/refill' \
+        -H 'Content-Type: application/json' \
+        -d '{
+            "orderId": 547110069,
+            "amount": "73.00",
+            "returnId": 23,
+            "changeRequestId": 23,
+            "budgetType": "SERVICEABLE"
+        }'
+}
+
+function prod-payments-postpaid-refill() {
+    DST=2043610 SRC=2043610 tvm_curl -v \
+        -X POST 'https://market-b2b-payments.vs.market.yandex.net/postpaid/manual/refill' \
+        -H 'Content-Type: application/json' \
+        -d '{
+            "orderId": 547110069,
+            "amount": "73.00",
+            "returnId": 23,
+            "changeRequestId": 23,
+            "budgetType": "SERVICEABLE"
+        }'
+}
+
+function test-payments-postpaid-total-get() {
+    DST=2043612 SRC=2043612 tvm_curl \
+         -X POST "http://market-b2b-payments.tst.vs.market.yandex.net/postpaid/config/budget/total" \
+         -H "User-Ticket: your_user_ticket" -v | jq
+}
+
+function test-payments-postpaid-cache() {
+    DST=2043612 SRC=2043612 tvm_curl "https://market-b2b-payments.tst.vs.market.yandex.net/postpaid/manager/cache"
+}
+
+function test-payments-postpaid-cache-update() {
+    DST=2043612 SRC=2043612 tvm_curl "https://market-b2b-payments.tst.vs.market.yandex.net/postpaid/manager/cache/update" -v
+}
+
+function prod-payments-postpaid-cache() {
+    DST=2043610 SRC=2043610 tvm_curl "https://market-b2b-payments.vs.market.yandex.net/postpaid/manager/cache"
+}
+
+function prod-payments-postpaid-cache-update() {
+    DST=2043610 SRC=2043610 tvm_curl "https://market-b2b-payments.vs.market.yandex.net/postpaid/manager/cache/update" -v
+}
+
+function test-orders-exp() {
+    DST=2043358 SRC=2043358 tvm_curl "https://market-b2b-orders.tst.vs.market.yandex.net/config/status" -v | jq
+}
+
+function test-customer() {
+    arg_string="$1"
+    DST=2031865 SRC=2031865 tvm_curl "http://marketb2bclients.tst.vs.market.yandex.net/customers/${arg_string}" -v | jq
+}
+
+function test-customer-default() {
+    arg_string="$1"
+    DST=2031865 SRC=2031865 tvm_curl "http://marketb2bclients.tst.vs.market.yandex.net/users/4114737030/customer?serviceable=true&balanceClientId=2100649144" -v | jq
+}
+
+function test-customers() {
+    arg_string="$1"
+    DST=2031865 SRC=2031865 tvm_curl "http://marketb2bclients.tst.vs.market.yandex.net/users/${arg_string}/customers" -v | jq
+}
+
+function test-user() {
+    arg_string="$1"
+    DST=2031865 SRC=2031865 tvm_curl "http://marketb2bclients.tst.vs.market.yandex.net/v1/users/${arg_string}/check" -v | jq
+}
+
+function prod-user() {
+    arg_string="$1"
+    DST=2031863 SRC=2031863 tvm_curl "http://marketb2bclients.vs.market.yandex.net/v1/users/${arg_string}/check" -v | jq
+}
+
+function prod-customers() {
+    arg_string="$1"
+    DST=2031863 SRC=2031863 tvm_curl "http://marketb2bclients.vs.market.yandex.net/users/${arg_string}/customers" -v | jq
+}
+
+function prod-customers-timing() {
+    arg_string="$1"
+    DST=2031863 SRC=2031863 tvm_curl "http://marketb2bclients.vs.market.yandex.net/users/${arg_string}/customers" -v -w 'Total time: %{time_total}s\n'
+}
+
+function prod-customer() {
+    arg_string="$1"
+    DST=2031863 SRC=2031863 tvm_curl "http://marketb2bclients.vs.market.yandex.net/customers/${arg_string}" -v | jq
+}
+
+function prod-customers-invalid-cache-uid() {
+    arg_string="$1"
+    DST=2031863 SRC=2031863 tvm_curl -X POST "http://marketb2bclients.vs.market.yandex.net/v1/customers/invalidate-caches?uid=${arg_string}" -v | jq
+}
+
+function prod-customers-invalid-cache-balanceId() {
+    arg_string="$1"
+    DST=2031863 SRC=2031863 tvm_curl -X POST "http://marketb2bclients.vs.market.yandex.net/v1/customers/invalidate-caches?balanceId=${arg_string}" -v | jq
+}
+
+function prod-customer-affilation() {
+    uid="$1"
+    balanceClientId="$2"
+    DST=2031863 SRC=2031863 tvm_curl "http://marketb2bclients.vs.market.yandex.net/v1/users/${uid}/customers/${balanceClientId}/check/affiliation" -v | jq
+}
+
+function test-order-docs() {
+    arg_string="$1"
+    DST=2031865 SRC=2031865 tvm_curl "http://marketb2bclients.tst.vs.market.yandex.net/orders/${arg_string}/documents?withPrintStatus=true" -v | jq
+}
+
+function prod-order-docs() {
+    arg_string="$1"
+    DST=2031863 SRC=2031863 tvm_curl "http://marketb2bclients.vs.market.yandex.net/orders/${arg_string}/documents?withPrintStatus=true" -v | jq
+}
+
+function test-checkouter-order() {
+    arg_string="$1"
+    DST=2010068 SRC=2031865 tvm_curl -X 'GET' "http://checkouter.tst.vs.market.yandex.net:39001/orders/${arg_string}?clientRole=SYSTEM" | jq
+}
+
+function test-checkouter-feature() {
+    feature_flag="$1"
+    feature_value="$2"
+    reason="$3"
+    ticket=$(ya tool tvmknife get_service_ticket sshkey -s 2010068 -d 2010068)
+    curl -L -X PUT "http://checkouter.tst.vs.market.yandex.net:39001/features/${feature_flag}" -H "X-Ya-Service-Ticket: ${ticket}" -H 'Content-Type: application/json' -v -d "{
+        \"featureValue\": \"${feature_value}\",
+        \"reason\": \"${reason}\"
+    }"
+}
+
+function test-checkouter-feature-list() {
+    feature_flag="$1"
+    feature_value="$2"
+    reason="$3"
+    ticket=$(ya tool tvmknife get_service_ticket sshkey -s 2010068 -d 2010068)
+    curl -L -X PUT "http://checkouter.tst.vs.market.yandex.net:39001/features/${feature_flag}" -H "X-Ya-Service-Ticket: ${ticket}" -H 'Content-Type: application/json' -v -d "{
+        \"featureValue\": \"${feature_value}\",
+        \"reason\": \"${reason}\"
+    }"
+}
+
+
+function prod-checkouter-feature-list() {
+    feature_flag="$1"
+    feature_value="$2"
+    reason="$3"
+    ticket=$(ya tool tvmknife get_service_ticket sshkey -s 2010068 -d 2010068)
+    curl --location --request PUT 'http://checkouter.market.http.yandex.net:39001/features/b2bThrowAllowedShopIds' \
+        --header 'Content-Type: application/json' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "featureValue": "[\"431782\",\"10367010\"]",
+            "author": "marshtupa",
+            "reason": "https://st.yandex-team.ru/MFBDEV-7687"
+        }
+        '
+}
+
+function prod-checkouter-order() {
+    arg_string="$1"
+    DST=2010064 SRC=2010064 tvm_curl -X 'GET' "http://checkouter.market.http.yandex.net:39001/orders/${arg_string}?clientRole=SYSTEM" | jq
+}
+
+function prod-checkouter-refund() {
+    arg_string="$1"
+    DST=2010064 SRC=2010064 tvm_curl -X 'GET' "http://checkouter.market.http.yandex.net:39001/orders/${arg_string}/refunds?clientRole=SYSTEM" -v | jq
+}
+
+function prod-checkouter-edit-options() {
+    arg_string="$1"
+    DST=2010064 SRC=2010064 tvm_curl -X 'POST' "http://checkouter.market.http.yandex.net:39001/orders/${arg_string}/edit-options?clientRole=SYSTEM&clientId=&rgb=BLUE&showCredits=false&showSbp=false" \
+                                     -H "Content-Type: application/json" \
+                                     -v -d \
+'{
+  "changeRequestTypes": [ 2 ]
+}'| jq
+}
+
+actualizer_service_ticket=''
+
+function regenerate-local-actualizer-service-ticket() {
+    actualizer_service_ticket=$(ya vault get version sec-01ghked67rdaq7xcq30mkvhye3 -j | jq .value.client_secret -r | ya tool tvmknife get_service_ticket client_credentials --src 2039175 --dst 2039175)
+}
+
+function local-actualizer-cart() {
+    regenerate-local-actualizer-service-ticket
+    curl --location 'http://localhost:8080/cart' \
+        --header 'X-market-rearrfactors: cart_suggest_replacement_for_unavailable=1;ugc_plus_badge' \
+        --header 'Accept: application/json' \
+        --header 'Content-Type: application/json' \
+        --header 'Content-Type: application/json' \
+        --header "X-Ya-Service-Ticket: ${actualizer_service_ticket}" \
+        --data '{
+            "buyer": {
+                "currentRegionId": 213,
+                "yandexUid": "4757433161716454452",
+                "uid": "604444701",
+                "deviceInfo": null,
+                "taxiUserId": "9b20f0462f144ead9526456dbb3b0949"
+            },
+            "platform": "DESKTOP",
+            "eatsSessionId": "3c61d488503e4695a4ca8a5bdcc058c4"
+        }'
+}
+
+
+function local-actualizer-actuator() {
+    regenerate-local-actualizer-service-ticket
+    curl --location 'http://localhost:8080/storage/read?project=healz&service=actuator&pretty=true' \
+         --header "X-Ya-Service-Ticket: ${actualizer_service_ticket}" \
+}

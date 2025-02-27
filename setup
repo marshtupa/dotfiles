@@ -1,0 +1,84 @@
+#!/bin/bash
+set -eu
+
+cd "$(dirname $0)"
+
+bold=$(tput bold)
+green=$(tput setaf 2)
+normal=$(tput sgr0)
+
+title() {
+  echo "${bold}==> $1${normal}"
+  echo
+}
+
+indent() {
+  sed 's/^/  /'
+}
+
+echo
+
+
+# Install symlinks
+title "Configuring software..."
+sh ./scripts/install-symlinks
+
+exit
+
+# # Install brew
+# if test ! $(which brew); then
+#   title "Installing Homebrew..."
+#   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#   if [[ -d /home/linuxbrew/.linuxbrew ]]; then
+#     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+#   else
+#     eval "$(/opt/homebrew/bin/brew shellenv)"
+#   fi
+#   echo
+# fi
+
+# # Install brew packages
+# title "Installing software..."
+# brew bundle | indent
+# echo
+
+# # Ensure zsh is a valid shell option
+# if ! cat /etc/shells | grep $HOMEBREW_PREFIX/bin/zsh > /dev/null; then
+#   title "Adding zsh to list of allowed shells..."
+#   sudo sh -c "echo $HOMEBREW_PREFIX/bin/zsh >> /etc/shells"
+#   echo
+# fi
+
+# # If macOS
+# if [[ "$(uname)" == "Darwin" ]]; then
+
+#   # Use Touch ID for sudo
+#   if [ ! -f /etc/pam.d/sudo_local ]; then
+#     echo "auth       sufficient     pam_tid.so" | sudo tee /etc/pam.d/sudo_local
+#   fi
+
+#   title "Configuring macOS..."
+#   ./scripts/configure-macos
+#   echo "Defaults configured!" | indent
+#   echo
+
+# fi
+
+# # Install symlinks
+# title "Configuring software..."
+# ./scripts/install-symlinks
+
+# # Check that we are using zsh
+# if [[ "$SHELL" != *"zsh"* ]]; then
+#   if [[ "$(uname)" == "Darwin" ]]; then
+#     title "Changing user shell to zsh..."
+#     chsh -s $HOMEBREW_PREFIX/bin/zsh
+#     echo "Your shell has been changed to zsh, please restart your terminal or tab" | indent
+#     echo
+#   else
+#     echo "You are not using zsh, after installing, please run 'chsh -s /path/to/zsh'" | indent
+#     echo
+#   fi
+# fi
+
+# echo "${green}All done!${normal}" | indent
