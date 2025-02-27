@@ -133,7 +133,7 @@ install_dotfiles () {
 
   OLDIFS=$IFS
   IFS=$'\n'
-  local all_files=($(find "$DOTFILES_ROOT/symlinks" -maxdepth 10 -name '*.symlink' -not -path '*.git/*'))
+  local all_files=($(find "$DOTFILES_ROOT/symlinks" -name '*.symlink' -not -path '*.git/*'))
   IFS=$OLDIFS
 
   local files_len=${#all_files[@]}

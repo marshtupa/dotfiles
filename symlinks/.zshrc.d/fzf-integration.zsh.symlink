@@ -1,5 +1,12 @@
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Setup fzf
+# ---------
+if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
+  PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
+fi
 
+source <(fzf --zsh)
+
+# Custom fzf functions
 eza-files-for-nvigation() {
     eza -d ..; eza; eza -a | grep '^\.' | grep -vE '^(\.|\.{2})$'
 }
@@ -53,5 +60,3 @@ fzf-navigator() {
 alias ls='eza'
 alias f='fzf-navigator'
 alias ff='fzf-navigator --full-search'
-
-source <(fzf --zsh)
