@@ -25,3 +25,8 @@ function arc-links-to-md() {
         fi
     done
 }
+
+function brew-update() {
+    brew update && brew upgrade && brew upgrade --cask && brew cleanup
+}
+    

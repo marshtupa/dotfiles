@@ -1,5 +1,6 @@
 tap "homebrew/bundle"
 tap "homebrew/services"
+brew "zoxide"
 brew "colima"
 brew "bat"
 brew "mas"
@@ -45,7 +46,4 @@ cask "telegram"
 cask "zoom"
 cask "yandex-music"
 
-cask "youtype", args: { no_quarantine: true }
-
-# mas 'Lang Switcher', id: 1597566195 
-# mas 'Caramba Switcher', id: 1565826179 
+mas 'Caramba Switcher', id: 1565826179 

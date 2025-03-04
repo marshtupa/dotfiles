@@ -18,6 +18,38 @@ indent() {
 
 echo
 
+install_simlinks_to_home() {
+  title "Configuring symlinks..."
+  sh ./scripts/install-symlinks
+}
+
+##########################################################
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -u|--update-symlinks)
+      title "Deliting current ~/.zshrc.d"
+      trash ~/.zshrc.d
+      install_simlinks_to_home
+      echo "${green}Symlinks updated!${normal}" | indent
+      ;;
+    -h|--help)
+      echo "Usage: $0 [options]"
+      echo "  -u, --update-symlinks"
+      echo "  -h, --help           "
+      exit 0
+      ;;
+    *)
+      echo "Unknown flags: $1"
+      echo "Use -h to see option."
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+exit 0
+
 # Install brew
 if test ! $(which brew); then
   title "Installing Homebrew..."
@@ -57,9 +89,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
 
 fi
 
-# Install symlinks
-title "Configuring software..."
-sh ./scripts/install-symlinks
+install_simlinks_to_home
 
 # Check that we are using zsh
 if [[ "$SHELL" != *"zsh"* ]]; then
