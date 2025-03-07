@@ -1,0 +1,40 @@
+function search_string() {
+    # Check if a search string is provided
+    if [ $# -lt 1 ]; then
+      echo "Usage: $0 \"search_string\" [directory]"
+      exit 1
+    fi
+
+    # Set the search string and directory (defaults to current directory)
+    search_string="$1"
+    directory="${2:-.}"
+
+    # Recursively search for the string in the specified directory
+    grep -R "$search_string" "$directory" 
+}
+
+function arc-links-to-md() {
+    # Проверяем, есть ли аргументы
+    if [ "$#" -eq 0 ]; then
+        echo "Введите ссылки (по одной в строке), затем Ctrl+D для завершения ввода:"
+        input=()
+        while read -r line; do
+            input+=("$line")
+        done
+    else
+        input=("$@")
+    fi
+
+    # Обрабатываем ссылки и формируем Markdown-список
+    for url in "${input[@]}"; do
+        if [[ $url =~ https://st.yandex-team.ru/([A-Za-z0-9-]+) ]]; then
+            id="${BASH_REMATCH[1]}"
+            echo "- [$id]($url)"
+        fi
+    done
+}
+
+function brew-update() {
+    brew update && brew upgrade && brew upgrade --cask && brew cleanup
+}
+    
