@@ -21,9 +21,6 @@ cask "visual-studio-code"
 cask "warp"
 cask "yandex-music-unofficial"
 cask "zen-browser"
-vscode "akamud.vscode-theme-onedark"
-vscode "janisdd.vscode-edit-csv"
-vscode "mechatroner.rainbow-csv"
 
 cask "arc"
 cask "anytype"
@@ -45,5 +42,13 @@ cask "readdle-spark"
 cask "telegram"
 cask "zoom"
 cask "yandex-music"
+cask "alt-tab"
+cask "betterdisplay"
+cask "karabiner-elements"
+
+vscode "akamud.vscode-theme-onedark"
+vscode "janisdd.vscode-edit-csv"
+vscode "mechatroner.rainbow-csv"
+vscode "tfgzs.diff-clipboard"
 
 mas 'Caramba Switcher', id: 1565826179 
