@@ -28,8 +28,6 @@ install_simlinks_to_home() {
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -u|--update-symlinks)
-      title "Deliting current ~/.zshrc.d"
-      trash ~/.zshrc.d
       install_simlinks_to_home
       echo "${green}Symlinks updated!${normal}" | indent
       ;;

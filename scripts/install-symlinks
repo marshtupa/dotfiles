@@ -6,7 +6,7 @@ DOTFILES_ROOT=$(pwd)
 set -eu
 
 info () {
-  printf "  [ \033[00;34m..\033[0m ] $1"
+  printf "  [ \033[00;34m..\033[0m ] $1\n"
 }
 
 user () {
@@ -103,7 +103,7 @@ link_file () {
 
     if [ "$overwrite" == "true" ]
     then
-      rm -rf "$dst"
+      trash "$dst"
       success "removed $dst"
     fi
 
@@ -127,6 +127,7 @@ link_file () {
 }
 
 install_dotfiles () {
+  echo ''
   info 'installing dotfiles'
 
   local overwrite_all=false backup_all=false skip_all=false
@@ -145,6 +146,11 @@ install_dotfiles () {
     link_file "$src" "$dst"
   done
 }
+
+# cause I am ofen changing the zshrc.d stucture i need to remove before resetting
+info "Deleting current ~/.zshrc.d"
+trash ~/.zshrc.d
+success "trashed ~/.zshrc.d"
 
 # setup_gitconfig
 install_dotfiles

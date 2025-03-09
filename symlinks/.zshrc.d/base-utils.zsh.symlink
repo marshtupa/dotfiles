@@ -37,4 +37,65 @@ function arc-links-to-md() {
 function brew-update() {
     brew update && brew upgrade && brew upgrade --cask && brew cleanup
 }
-    
+
+function normalize-after-anytype() {
+    # Script to rename markdown files based on their H1 header
+    # Finds all .md files in current directory and renames them to their title
+
+    echo "Starting to process markdown files..."
+
+    # Counter for statistics
+    success_count=0
+    skipped_count=0
+
+    # Process each .md file in the current directory
+    for file in *.md; do
+        # Skip if no files match the pattern
+        [ -e "$file" ] || continue
+        
+        # Read the first line of the file
+        first_line=$(head -n 1 "$file")
+        
+        # Check if the line starts with "# "
+        if [[ "$first_line" =~ ^#\ (.*) ]]; then
+            # Extract the title (removing the "# " prefix and any trailing spaces)
+            title="${BASH_REMATCH[1]}"
+            title=$(echo "$title" | sed 's/[[:space:]]*$//')
+            
+            # Create the new filename with .md extension
+            new_filename="${title}.md"
+            
+            # Skip if the new filename is the same as the old one
+            if [ "$file" == "$new_filename" ]; then
+                echo "Skipping $file (already named correctly)"
+                ((skipped_count++))
+                continue
+            fi
+            
+            # Rename the file
+            mv -i "$file" "$new_filename"
+            
+            # Check if the rename was successful
+            if [ $? -eq 0 ]; then
+                echo "Successfully renamed: $file -> $new_filename"
+                
+                # Remove the first line that starts with '#' from the file
+                sed -i.bak '1,/^#/s/^#.*$//' "$new_filename" && rm -f "$new_filename.bak"
+                echo "Removed H1 header from $new_filename"
+                
+                ((success_count++))
+            else
+                echo "Error renaming: $file -> $new_filename"
+            fi
+        else
+            echo "Skipping $file (no H1 header found)"
+            ((skipped_count++))
+        fi
+    done
+
+    # Print statistics
+    echo "Finished processing markdown files."
+    echo "Successfully renamed: $success_count files"
+    echo "Skipped: $skipped_count files"
+
+}
