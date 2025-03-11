@@ -63,6 +63,10 @@ function test-orders-exp() {
     DST=2043358 SRC=2043358 tvm_curl "https://market-b2b-orders.tst.vs.market.yandex.net/config/status" -v | jq
 }
 
+function test-orders-beans() {
+    DST=2043358 SRC=2043358 tvm_curl "https://market-b2b-orders.tst.vs.market.yandex.net:7900/actuator/beans" -v | jq
+}
+
 function test-customer() {
     arg_string="$1"
     DST=2031865 SRC=2031865 tvm_curl "http://marketb2bclients.tst.vs.market.yandex.net/customers/${arg_string}" -v | jq
