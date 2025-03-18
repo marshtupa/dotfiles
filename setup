@@ -25,28 +25,28 @@ install_simlinks_to_home() {
 
 ##########################################################
 
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    -u|--update-symlinks)
-      install_simlinks_to_home
-      echo "${green}Symlinks updated!${normal}" | indent
-      ;;
-    -h|--help)
-      echo "Usage: $0 [options]"
-      echo "  -u, --update-symlinks"
-      echo "  -h, --help           "
-      exit 0
-      ;;
-    *)
-      echo "Unknown flags: $1"
-      echo "Use -h to see option."
-      exit 1
-      ;;
-  esac
-  shift
-done
+# while [[ $# -gt 0 ]]; do
+#   case "$1" in
+#     -u|--update-symlinks)
+#       install_simlinks_to_home
+#       echo "${green}Symlinks updated!${normal}" | indent
+#       ;;
+#     -h|--help)
+#       echo "Usage: $0 [options]"
+#       echo "  -u, --update-symlinks"
+#       echo "  -h, --help           "
+#       exit 0
+#       ;;
+#     *)
+#       echo "Unknown flags: $1"
+#       echo "Use -h to see option."
+#       exit 1
+#       ;;
+#   esac
+#   shift
+# done
 
-exit 0
+# exit 0
 
 # Install brew
 if test ! $(which brew); then
