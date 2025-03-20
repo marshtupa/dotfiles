@@ -4,3 +4,7 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 ########################################### JAVA ###############################################
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home
 export PATH=$JAVA_HOME/bin:$PATH
+
+function git-push() {
+    git add . && git commit -m "update" && git push
+}
