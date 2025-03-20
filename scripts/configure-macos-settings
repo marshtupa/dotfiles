@@ -72,5 +72,4 @@ defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
 
 
 ### System Utilities ###
-# Reset Launchpad
-find ~/Library/Application\ Support/Dock -name "*.db" -maxdepth 1 -delete
+defaults write company.thebrowser.Browser currentAppIconName hologram

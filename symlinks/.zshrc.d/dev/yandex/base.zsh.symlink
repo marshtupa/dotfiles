@@ -1,6 +1,14 @@
 export ARCADIA_ROOT=/Users/marshtupa/arcadia
 export ARCADIA_PATH=/Users/marshtupa/arcadia
 
+function generate_project() {
+    ya ide idea --group-modules tree --omit-test-data --iml-in-project-root --local -r ~/idea_projects/$(basename "$PWD")
+}
+
+function generate_project_mj() {
+    ya project update MJ -withide
+}
+
 function delete_arc_branches() {
     # Получаем список всех веток
     branches=$(arc branch -a)
