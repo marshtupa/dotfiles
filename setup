@@ -30,6 +30,7 @@ while [[ $# -gt 0 ]]; do
     -u|--update-symlinks)
       install_simlinks_to_home
       echo "${green}Symlinks updated!${normal}" | indent
+      exit 0
       ;;
     -h|--help)
       echo "Usage: $0 [options]"
@@ -98,5 +99,8 @@ if [[ "$SHELL" != *"zsh"* ]]; then
     echo
   fi
 fi
+  
+title "Turning off spotlight..."
+sudo mdutil -i off
 
 echo "${green}All done!${normal}" | indent

@@ -1,0 +1,11 @@
+function pi() {
+    ssh pi@192.168.88.252
+}
+
+function mikrotik() {
+    ssh admin@192.168.88.1
+}
+
+function vpn() {
+    ssh root@45.12.255.140
+}
