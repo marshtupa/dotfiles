@@ -55,3 +55,4 @@ vscode "tfgzs.diff-clipboard"
 
 mas 'Caramba Switcher', id: 1565826179 
 mas 'Dropover', id: 1355679052
+mas 'Wireguard', id: 1451685025

@@ -9,6 +9,10 @@ function generate_project_mj() {
     ya project update MJ -withide
 }
 
+function soft_reset() {
+    arc reset --soft HEAD~2
+}
+
 function delete_arc_branches() {
     # Получаем список всех веток
     branches=$(arc branch -a)
