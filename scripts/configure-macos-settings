@@ -73,3 +73,9 @@ defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
 
 ### System Utilities ###
 defaults write company.thebrowser.Browser currentAppIconName hologram
+
+
+
+### Music Decoy ###
+defaults write com.lowtechguys.MusicDecoy mediaAppPath /Applications/YandexMusic.app
+mv /Applications/Яндекс\ Музыка.app /Applications/YandexMusic.app

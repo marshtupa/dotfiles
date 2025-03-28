@@ -9,8 +9,14 @@ function generate_project_mj() {
     ya project update MJ -withide
 }
 
-function soft_reset() {
-    arc reset --soft HEAD~2
+function soft-reset() {
+    local commits=${1:-1}
+    arc reset --soft "HEAD~$commits"
+}
+
+function remount() {
+    arc unmount
+    arc mount ~/arcadia
 }
 
 function delete_arc_branches() {

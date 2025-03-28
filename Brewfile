@@ -23,6 +23,7 @@ cask "tigervnc-viewer"
 cask "visual-studio-code"
 cask "warp"
 cask "zen-browser"
+cask "music-decoy"
 
 cask "arc"
 cask "winbox"
