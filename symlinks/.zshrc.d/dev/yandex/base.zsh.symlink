@@ -14,7 +14,13 @@ function soft-reset() {
     arc reset --soft "HEAD~$commits"
 }
 
+function hard-reset() {
+    local commits=${1:-1}
+    arc reset --hard "HEAD~$commits"
+}
+
 function remount() {
+    diskutil unmount force /Users/marshtupa/arcadia
     arc unmount
     arc mount ~/arcadia
 }
