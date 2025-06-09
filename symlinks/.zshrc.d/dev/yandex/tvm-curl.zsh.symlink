@@ -11,6 +11,30 @@ function test-payments-payment() {
          -H "User-Ticket: 3:user:COnyARDd8Mq6BhpbCgkI98HEkaXU_gEQ98HEkaXU_gEaEm9hdXRoOmdyYW50X3h0b2tlbhoecGFzc3BvcnQ6Z2V0X2RlYnVnX3VzZXJfdGlja2V0INzdfCgCMgl0OjUyNjgwNTdAAQ:I-jtCRc-twtqUe3QKAQjakzWmbEqDNaPsl-kQrTj7q3DdRWI8vyEaRj_E3HE5PVwfyc4yYDUmhuPvaar8EJOKoNcS10nY7nicK4vZY63oaqza_naY2ZvnvWFrLBtxwxwPTor-DbyToN97G_ZnZHCXeouLOvBw5_TbYHCDH-wgOVcUwEqLEGSShzpDvmmMDNpZSxYPp14enuA5LyJTb1YUHSI3-CO5neW6WDew7Zd8-kmYt-QpSAwp0ULK-9zPpj70Y4XOkdnEDxcP6TA9gO6X-nrfeTiYTyuFuwkLI-g38lseBKJ6KI9qIyXzzVTqag7_AEOkeXCjq4L_z5rPnDKLA" -v | jq
 }
 
+function test-payments-remove-duplicates() {
+    date="$1"
+    DST=2043612 SRC=2043612 tvm_curl -vv -L \
+        -X DELETE "http://market-b2b-payments.tst.vs.market.yandex.net/lb/idempotency/duplicate/remove?date=${date}"
+}
+
+function prod-payments-remove-duplicates() {
+    date="$1"
+    DST=2043610 SRC=2043610 tvm_curl -vv -L \
+        -X DELETE "http://market-b2b-payments.vs.market.yandex.net/lb/idempotency/duplicate/remove?date=${date}"
+}
+
+function test-payments-remove-idempotency() {
+    date="$1"
+    DST=2043612 SRC=2043612 tvm_curl -vv -L \
+        -X DELETE "http://market-b2b-payments.tst.vs.market.yandex.net/lb/idempotency/remove?date=${date}"
+}
+
+function prod-payments-remove-idempotency() {
+    date="$1"
+    DST=2043610 SRC=2043610 tvm_curl -vv -L \
+        -X DELETE "http://market-b2b-payments.vs.market.yandex.net/lb/idempotency/remove?date=${date}"
+}
+
 function test-payments-postpaid() {
     DST=2043612 SRC=2043612 tvm_curl -v \
         -X POST 'https://market-b2b-payments.tst.vs.market.yandex.net/postpaid/manual/refill' \
@@ -180,6 +204,16 @@ function prod-checkouter-feature-list() {
 function prod-checkouter-order() {
     arg_string="$1"
     DST=2010064 SRC=2010064 tvm_curl -X 'GET' "http://checkouter.market.http.yandex.net:39001/orders/${arg_string}?clientRole=SYSTEM" | jq
+}
+
+function test-oms-order() {
+    arg_string="$1"
+    DST=2035279 SRC=2031865 tvm_curl -X GET "http://oms.tst.vs.market.yandex.net/v2/fat-orders/${arg_string}" | jq
+}
+
+function prod-oms-order() {
+    arg_string="$1"
+    DST=2035281 SRC=2031863 tvm_curl -X GET "http://oms.vs.market.yandex.net/v2/fat-orders/${arg_string}" | jq
 }
 
 function prod-checkouter-refund() {

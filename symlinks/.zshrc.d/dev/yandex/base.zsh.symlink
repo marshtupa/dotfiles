@@ -20,9 +20,11 @@ function hard-reset() {
 }
 
 function remount() {
+    cd ~
     diskutil unmount force /Users/marshtupa/arcadia
     arc unmount
     arc mount ~/arcadia
+    cd -
 }
 
 function delete_arc_branches() {

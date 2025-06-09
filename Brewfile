@@ -41,7 +41,6 @@ cask "insta360-studio"
 cask "intellij-idea-ce"
 cask "miro"
 cask "raycast"
-cask "readdle-spark"
 cask "telegram"
 cask "zoom"
 cask "yandex-music"
@@ -57,3 +56,5 @@ vscode "tfgzs.diff-clipboard"
 mas 'Caramba Switcher', id: 1565826179 
 mas 'Dropover', id: 1355679052
 mas 'Wireguard', id: 1451685025
+mas 'Wireguard', id: 6445813049
+mas 'Spark', id: 6445813049
