@@ -10,6 +10,7 @@ export LC_CTYPE="en_US.UTF-8"
 export NVM_DIR=~/.nvm
 
 alias python='python3'
+alias pip='pip3'
 
 export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
 export LDFLAGS="-L/usr/local/opt/openssl@1.1/lib"
@@ -19,3 +20,8 @@ export PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig"
 for file in $(find ~/.zshrc.d -name '*.zsh'); do
   [ -r "$file" ] && source "$file"
 done
+
+source "$HOME/.zshrc.d/.local-shell"
+
+# opencode
+export PATH=/Users/marshtupa/.opencode/bin:$PATH

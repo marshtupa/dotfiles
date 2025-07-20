@@ -6,6 +6,14 @@ function mikrotik() {
     ssh admin@192.168.88.1
 }
 
-function vpn() {
+function vpn-nl() {
     ssh root@45.12.255.140
+}
+
+function vpn-fr() {
+    ssh root@77.239.116.83
+}
+
+function vpn-de() {
+    ssh root@5.61.47.74
 }
