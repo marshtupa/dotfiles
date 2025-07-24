@@ -153,6 +153,12 @@ if [ -d ~/.zshrc.d ]; then
   success "trashed ~/.zshrc.d"
 fi
 
+if [ ! -f "$DOTFILES_ROOT/symlinks/.zshrc.d/.local-shell.symlink" ]; then
+  mkdir -p "$DOTFILES_ROOT/symlinks/.zshrc.d"
+  touch "$DOTFILES_ROOT/symlinks/.zshrc.d/.local-shell.symlink"
+  info "created .local-shell.symlink"
+fi
+
 # setup_gitconfig
 install_dotfiles
 
