@@ -14,10 +14,10 @@ brew "git"
 brew "jq"
 brew "speedtest-cli"
 brew "zsh"
-brew "obsidian"
+cask "obsidian"
 brew "npm"
-brew "jordanbaird-ice"
-brew "meetingbar"
+cask "jordanbaird-ice"
+cask "meetingbar"
 # cask "deepl"
 cask "tigervnc-viewer"
 cask "cursor"
@@ -56,5 +56,4 @@ vscode "tfgzs.diff-clipboard"
 mas 'Caramba Switcher', id: 1565826179 
 mas 'Dropover', id: 1355679052
 mas 'Wireguard', id: 1451685025
-mas 'Wireguard', id: 6445813049
 mas 'Spark', id: 6445813049
