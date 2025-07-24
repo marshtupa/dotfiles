@@ -2,6 +2,8 @@
 
 ## Installation
 ```bash
+xcode-select --install
+softwareupdate --install-rosetta --agree-to-license
 git clone https://github.com/marshtupa/dotfiles.git
 cd ~/dotfiles
 sh ./setup
