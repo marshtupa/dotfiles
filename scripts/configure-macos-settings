@@ -78,4 +78,4 @@ defaults write company.thebrowser.Browser currentAppIconName hologram
 
 ### Music Decoy ###
 defaults write com.lowtechguys.MusicDecoy mediaAppPath /Applications/YandexMusic.app
-mv /Applications/Яндекс\ Музыка.app /Applications/YandexMusic.app
+mv /Applications/Яндекс\ Музыка.app /Applications/YandexMusic.app 2>/dev/null || true
