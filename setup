@@ -65,6 +65,7 @@ title "Installing software..."
 brew bundle | indent
 echo
 
+eval "$(/opt/homebrew/bin/brew shellenv)"
 # Ensure zsh is a valid shell option
 if ! cat /etc/shells | grep $HOMEBREW_PREFIX/bin/zsh > /dev/null; then
   title "Adding zsh to list of allowed shells..."
