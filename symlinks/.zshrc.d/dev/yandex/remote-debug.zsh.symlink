@@ -95,3 +95,17 @@ function mbi_report_generator-debug() {
     ssh_mbi_report_generator_pids+=( "$!" )
     echo "SSH connections started. PID: ${ssh_mbi_report_generator_pids[*]}"
 }
+
+function marketid-debug() {
+    marketid_pids=()
+
+    osascript -e "tell application \"Terminal\" to do script \"ssh -v -L 9040:127.0.0.1:82 -l '//user:nobody//configuration_id:testing_market_marketid_vla#testing_market_marketid_vla-1753268158728' testing-market-marketid-vla-2.vla.yp-c.yandex.net \""
+    sleep 1
+    marketid_pids+=( "$!" )
+    
+    osascript -e "tell application \"Terminal\" to do script \"ssh -v -L 9041:127.0.0.1:82 -l '//user:nobody//configuration_id:testing_market_marketid_sas#testing_market_marketid_sas-1753261502522' testing-market-marketid-sas-3.sas.yp-c.yandex.net \""
+    sleep 1
+    marketid_pids+=( "$!" )
+    
+    echo "SSH connections started. PID: ${marketid_pids[*]}"
+}

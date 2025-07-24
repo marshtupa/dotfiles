@@ -3,7 +3,7 @@
 ## Installation
 ```bash
 git clone https://github.com/marshtupa/dotfiles.git
-cd ~/.dotfiles
+cd ~/dotfiles
 sh ./setup
 ```
 

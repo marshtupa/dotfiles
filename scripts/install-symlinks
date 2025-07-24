@@ -147,10 +147,11 @@ install_dotfiles () {
   done
 }
 
-# cause I am ofen changing the zshrc.d stucture i need to remove before resetting
-info "Deleting current ~/.zshrc.d"
-trash ~/.zshrc.d
-success "trashed ~/.zshrc.d"
+if [ -d ~/.zshrc.d ]; then
+  info "Deleting current ~/.zshrc.d"
+  trash ~/.zshrc.d
+  success "trashed ~/.zshrc.d"
+fi
 
 # setup_gitconfig
 install_dotfiles
