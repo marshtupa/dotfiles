@@ -5,8 +5,14 @@
 osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to 1'
 # Hide recent apps from Dock
 defaults write com.apple.dock show-recents -bool false
-# Set Dock auto-hide delay to disabled
-defaults write com.apple.Dock autohide-delay -float 0
+# Включить автоскрытие Dock (если ещё не включено)
+defaults write com.apple.dock autohide -bool true
+# Убрать задержку перед появлением Dock
+defaults write com.apple.dock autohide-delay -float 0
+# Убрать анимацию (делает появление/скрытие мгновенным)
+defaults write com.apple.dock autohide-time-modifier -float 0
+# Применить изменения
+killall Dock
 
 
 ### Finder Preferences ###
