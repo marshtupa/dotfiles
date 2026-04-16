@@ -1,0 +1,6 @@
+-P home:"~/Documents/Youtube"
+-P temp:"~/Documents/Youtube/.tmp"
+--format "bestvideo[vcodec^=av01]+bestaudio[acodec^=opus]/bestvideo+bestaudio/best"
+--merge-output-format webm
+--embed-metadata
+--no-playlist

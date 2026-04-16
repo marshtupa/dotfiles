@@ -1,0 +1,7 @@
+-P home:"~/Documents/Youtube"
+-P temp:"~/Documents/Youtube/.tmp"
+--format "bestaudio[acodec^=opus]/bestaudio"
+--extract-audio
+--audio-format opus
+--embed-metadata
+--no-playlist

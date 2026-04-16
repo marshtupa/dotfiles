@@ -1,0 +1,4 @@
+alias ytbest='yt-dlp --config-location ~/.config/yt-dlp/best'
+alias yt720='yt-dlp --config-location ~/.config/yt-dlp/720'
+alias yt480='yt-dlp --config-location ~/.config/yt-dlp/480'
+alias ytaudio='yt-dlp --config-location ~/.config/yt-dlp/audio'

@@ -10,10 +10,6 @@ function vpn-nl() {
     ssh root@45.12.255.140
 }
 
-function vpn-fr() {
-    ssh root@77.239.116.83
-}
-
 function vpn-de() {
-    ssh root@5.61.47.74
+    ssh root@188.214.107.25
 }
