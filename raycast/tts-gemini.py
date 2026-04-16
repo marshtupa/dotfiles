@@ -224,8 +224,9 @@ app.run()
     with open(swift_path, "w") as f:
         f.write(swift_code)
         
-    # Play using macOS AVFoundation Swift script for media keys, then delete the audio track
-    cmd = f"swift '{swift_path}' '{tmp_path}' ; rm -f '{tmp_path}'"
+    # Play using macOS AVFoundation Swift script for media keys.
+    # Keep generated audio file after playback.
+    cmd = f"swift '{swift_path}' '{tmp_path}'"
     subprocess.Popen(["sh", "-c", cmd], start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
 except Exception as e:
