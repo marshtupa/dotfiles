@@ -1,3 +1,4 @@
 .DS_Store
 .local*
 symlinks/.zshrc.d/.local-shell.symlink
+raycast/__pycache__
