@@ -1,4 +1,4 @@
-#!/Users/marshtupa/.venvs/raycast/bin/python3
+#!/usr/bin/env python3
 
 # Required parameters:
 # @raycast.schemaVersion 1
@@ -11,18 +11,28 @@
 # @raycast.icon 🗣️
 # @raycast.argument1 { "type": "text", "placeholder": "Text to read", "optional": true }
 
-import asyncio
-import os
-import sys
 import base64
-import tempfile
+import concurrent.futures
+import json
+import os
+import re
+import ssl
 import subprocess
-from typing import Optional
+import sys
+import tempfile
+import time
+import urllib.request
+from typing import Dict, List, Tuple
 
 # --- Configuration ---
-MODEL_NAME = "gemini-3.1-flash-live-preview"
+MODEL_NAME = "gemini-3.1-flash-tts-preview"
 VOICE_NAME = "Puck"
-RECEIVE_TIMEOUT_SECONDS = 8
+MAX_WORKERS = 3
+MAX_RETRIES = 3
+RETRY_BASE_DELAY_SECONDS = 0.8
+FIRST_CHUNK_TARGET_CHARS = 220
+CHUNK_TARGET_CHARS = 700
+CHUNK_MAX_CHARS = 1000
 # ---------------------
 
 
@@ -32,7 +42,6 @@ def get_api_key() -> str:
         return api_key
 
     try:
-        # Launch an interactive shell to source .zshrc and get the key
         res = subprocess.run(
             ["zsh", "-i", "-c", "printenv GEMINI_API_KEY"],
             capture_output=True,
@@ -56,6 +65,150 @@ def get_input_text() -> str:
         return subprocess.check_output(["pbpaste"], text=True).strip()
     except Exception:
         return ""
+
+
+def split_text_into_chunks(
+    text: str,
+    first_target: int = FIRST_CHUNK_TARGET_CHARS,
+    target: int = CHUNK_TARGET_CHARS,
+    max_len: int = CHUNK_MAX_CHARS,
+) -> List[str]:
+    normalized = re.sub(r"\s+", " ", text).strip()
+    if not normalized:
+        return []
+
+    sentences = re.split(r"(?<=[.!?…])\s+|(?<=\n)\s*", normalized)
+    sentences = [s.strip() for s in sentences if s.strip()]
+    if not sentences:
+        return [normalized]
+
+    chunks: List[str] = []
+    current: List[str] = []
+    current_len = 0
+    chunk_idx = 0
+
+    def current_target() -> int:
+        return first_target if chunk_idx == 0 else target
+
+    def flush() -> None:
+        nonlocal current, current_len, chunk_idx
+        if current:
+            chunks.append(" ".join(current).strip())
+            current = []
+            current_len = 0
+            chunk_idx += 1
+
+    for sentence in sentences:
+        sentence_len = len(sentence)
+        if sentence_len > max_len:
+            flush()
+            start = 0
+            while start < sentence_len:
+                end = min(start + max_len, sentence_len)
+                part = sentence[start:end].strip()
+                if part:
+                    chunks.append(part)
+                    chunk_idx += 1
+                start = end
+            continue
+
+        target_len = current_target()
+        would_be = current_len + (1 if current else 0) + sentence_len
+        if current and (would_be > target_len or would_be > max_len):
+            flush()
+            target_len = current_target()
+            would_be = sentence_len
+
+        if would_be > max_len and not current:
+            chunks.append(sentence)
+            chunk_idx += 1
+            continue
+
+        current.append(sentence)
+        current_len = would_be
+
+        # Keep first chunk small for faster time-to-first-audio.
+        if chunk_idx == 0 and current_len >= first_target:
+            flush()
+
+    flush()
+    return chunks if chunks else [normalized]
+
+
+def create_ssl_context() -> ssl.SSLContext:
+    ctx = ssl.create_default_context()
+    try:
+        import certifi
+
+        ctx.load_verify_locations(certifi.where())
+        return ctx
+    except ImportError:
+        pass
+
+    for path in [
+        "/etc/ssl/cert.pem",
+        "/opt/homebrew/etc/ca-certificates/cert.pem",
+        "/usr/local/etc/openssl/cert.pem",
+    ]:
+        if os.path.exists(path):
+            ctx.load_verify_locations(path)
+            break
+    return ctx
+
+
+def request_chunk_audio(
+    idx: int, chunk_text: str, api_key: str, ctx: ssl.SSLContext
+) -> Tuple[int, bytes]:
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{MODEL_NAME}:generateContent?key={api_key}"
+    )
+
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": chunk_text}]}],
+        "generationConfig": {
+            "responseModalities": ["AUDIO"],
+            "speechConfig": {
+                "voiceConfig": {
+                    "prebuiltVoiceConfig": {"voiceName": VOICE_NAME}
+                }
+            },
+        },
+    }
+    body = json.dumps(payload).encode("utf-8")
+
+    last_error: Exception | None = None
+    for attempt in range(MAX_RETRIES):
+        try:
+            req = urllib.request.Request(
+                url,
+                data=body,
+                headers={"Content-Type": "application/json"},
+            )
+            with urllib.request.urlopen(req, context=ctx) as response:
+                data = json.loads(response.read().decode())
+
+            parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+            for part in parts:
+                inline_data = part.get("inlineData")
+                if not inline_data:
+                    continue
+                mime = inline_data.get("mimeType", "")
+                if mime.startswith("audio/l16"):
+                    pcm = base64.b64decode(inline_data.get("data", ""))
+                    if pcm:
+                        return idx, pcm
+            raise RuntimeError(f"No audio returned for chunk {idx + 1}.")
+        except Exception as e:
+            last_error = e
+            if attempt < MAX_RETRIES - 1:
+                delay = RETRY_BASE_DELAY_SECONDS * (2**attempt)
+                time.sleep(delay)
+                continue
+
+    if last_error is None:
+        raise RuntimeError(f"Failed to generate chunk {idx + 1}.")
+    raise RuntimeError(f"Chunk {idx + 1} failed: {last_error}")
 
 
 def start_streaming_player() -> subprocess.Popen:
@@ -143,7 +296,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 chunk.append(data)
 
-                // Keep frame boundaries aligned for Int16 PCM samples.
                 if chunk.count % 2 != 0 {
                     tail = chunk.suffix(1)
                     chunk.removeLast()
@@ -203,7 +355,7 @@ app.setActivationPolicy(.accessory)
 app.run()
 """
 
-    swift_path = os.path.join(tempfile.gettempdir(), "raycast_tts_stream_player.swift")
+    swift_path = os.path.join(tempfile.gettempdir(), "raycast_tts_chunked_player.swift")
     with open(swift_path, "w") as f:
         f.write(swift_code)
 
@@ -216,70 +368,47 @@ app.run()
     )
 
 
-async def stream_with_live_api(api_key: str, input_text: str, player_proc: subprocess.Popen) -> None:
+def stream_chunked_tts(api_key: str, input_text: str) -> None:
+    chunks = split_text_into_chunks(input_text)
+    if not chunks:
+        raise RuntimeError("No text after chunking.")
+
+    ssl_ctx = create_ssl_context()
+    player_proc = start_streaming_player()
+    if player_proc.stdin is None:
+        raise RuntimeError("Audio player stdin is unavailable.")
+
+    ready_audio: Dict[int, bytes] = {}
+    next_to_play = 0
+    total = len(chunks)
+
     try:
-        from google import genai
-    except ImportError as exc:
-        raise RuntimeError(
-            "Missing dependency `google-genai`. Install it with: pip3 install --user google-genai"
-        ) from exc
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(MAX_WORKERS, total)
+        ) as executor:
+            futures = [
+                executor.submit(request_chunk_audio, idx, chunk, api_key, ssl_ctx)
+                for idx, chunk in enumerate(chunks)
+            ]
 
-    client = genai.Client(api_key=api_key)
-    config = {
-        "response_modalities": ["AUDIO"],
-        "speech_config": {
-            "voice_config": {
-                "prebuilt_voice_config": {
-                    "voice_name": VOICE_NAME,
-                }
-            }
-        },
-    }
+            for future in concurrent.futures.as_completed(futures):
+                idx, audio = future.result()
+                ready_audio[idx] = audio
 
-    prompt = (
-        "Read the following text aloud exactly as written. "
-        "Do not add any extra words.\n\n"
-        f"{input_text}"
-    )
-
-    got_audio = False
-    async with client.aio.live.connect(model=MODEL_NAME, config=config) as session:
-        await session.send_realtime_input(text=prompt)
-
-        stream = session.receive()
-        while True:
-            try:
-                response = await asyncio.wait_for(anext(stream), timeout=RECEIVE_TIMEOUT_SECONDS)
-            except TimeoutError:
-                break
-            except StopAsyncIteration:
-                break
-
-            server_content = getattr(response, "server_content", None)
-            if not server_content:
-                continue
-
-            model_turn = getattr(server_content, "model_turn", None)
-            if model_turn and model_turn.parts:
-                for part in model_turn.parts:
-                    inline_data = getattr(part, "inline_data", None)
-                    if not inline_data or not inline_data.data:
-                        continue
-
-                    audio_chunk = inline_data.data
-                    if isinstance(audio_chunk, str):
-                        audio_chunk = base64.b64decode(audio_chunk)
-                    if player_proc.stdin is None:
-                        raise RuntimeError("Audio player stdin is not available.")
-                    player_proc.stdin.write(audio_chunk)
+                while next_to_play in ready_audio:
+                    pcm = ready_audio.pop(next_to_play)
+                    player_proc.stdin.write(pcm)
                     player_proc.stdin.flush()
-                    got_audio = True
+                    next_to_play += 1
 
-            if getattr(server_content, "turn_complete", False):
-                break
-
-    if not got_audio:
-        raise RuntimeError("No audio returned from Gemini Live API.")
+        if next_to_play != total:
+            raise RuntimeError("Not all chunks were played.")
+    finally:
+        try:
+            if player_proc.stdin is not None:
+                player_proc.stdin.close()
+        except Exception:
+            pass
 
 
 def main() -> None:
@@ -293,19 +422,9 @@ def main() -> None:
         print("No text provided or selected.")
         sys.exit(1)
 
-    player_proc: Optional[subprocess.Popen] = None
     try:
-        # Start player process early so first audio chunk plays with minimal extra delay.
-        player_proc = start_streaming_player()
-        asyncio.run(stream_with_live_api(api_key=api_key, input_text=input_text, player_proc=player_proc))
-        if player_proc.stdin is not None:
-            player_proc.stdin.close()
+        stream_chunked_tts(api_key=api_key, input_text=input_text)
     except Exception as e:
-        if player_proc and player_proc.stdin is not None:
-            try:
-                player_proc.stdin.close()
-            except Exception:
-                pass
         print(f"Error: {e}")
         sys.exit(1)
 
