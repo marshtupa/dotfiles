@@ -3,7 +3,7 @@
 # Required parameters:
 # @raycast.schemaVersion 1
 # @raycast.title Speak with Gemini
-# @raycast.mode silent
+# @raycast.mode compact
 # @raycast.packageName Audio
 # @raycast.description Speak text using Gemini 3.1 Flash TTS
 
@@ -20,6 +20,7 @@ import tempfile
 import subprocess
 import urllib.request
 import ssl
+import time
 
 # --- Configuration ---
 MODEL_NAME = "gemini-3.1-flash-tts-preview"
@@ -78,12 +79,37 @@ payload = {
 
 try:
     ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    
+    try:
+        import certifi
+        ctx.load_verify_locations(certifi.where())
+    except ImportError:
+        for path in ["/etc/ssl/cert.pem", "/opt/homebrew/etc/ca-certificates/cert.pem", "/usr/local/etc/openssl/cert.pem"]:
+            if os.path.exists(path):
+                ctx.load_verify_locations(path)
+                break
 
     req = urllib.request.Request(url, json.dumps(payload).encode('utf-8'), {'Content-Type': 'application/json'})
-    response = urllib.request.urlopen(req, context=ctx)
-    data = json.loads(response.read().decode())
+    
+    max_retries = 1
+    data = None
+    last_error = None
+    
+    for attempt in range(max_retries):
+        try:
+            response = urllib.request.urlopen(req, context=ctx)
+            data = json.loads(response.read().decode())
+            break
+        except Exception as e:
+            last_error = e
+            if "EOF occurred in violation of protocol" in str(e):
+                if attempt < max_retries - 1:
+                    time.sleep(1)
+                    continue
+            raise e
+            
+    if not data:
+        raise last_error
     
     parts = data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
     audio_data = None
