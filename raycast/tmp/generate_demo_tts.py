@@ -1,108 +1,222 @@
-import os
-import sys
-import json
-import base64
-import urllib.request
-import ssl
-import wave
-import time
-import subprocess
-import tempfile
-import pathlib
+#!/usr/bin/env python3
 
-# Get API key for Gemini
-API_KEY = os.environ.get("GEMINI_API_KEY")
-if not API_KEY:
+import argparse
+import asyncio
+import base64
+import os
+import pathlib
+import subprocess
+import sys
+import wave
+from typing import Iterable
+
+MODEL_NAME = "gemini-3.1-flash-live-preview"
+SAMPLE_RATE = 24000
+SAMPLE_WIDTH = 2
+CHANNELS = 1
+RECEIVE_TIMEOUT_SECONDS = 12
+
+# Official prebuilt voices listed in Gemini TTS docs.
+VOICE_NAMES = [
+    "Zephyr",
+    "Puck",
+    "Charon",
+    "Kore",
+    "Fenrir",
+    "Leda",
+    "Orus",
+    "Aoede",
+    "Callirrhoe",
+    "Autonoe",
+    "Enceladus",
+    "Iapetus",
+    "Umbriel",
+    "Algieba",
+    "Despina",
+    "Erinome",
+    "Algenib",
+    "Rasalgethi",
+    "Laomedeia",
+    "Achernar",
+    "Alnilam",
+    "Schedar",
+    "Gacrux",
+    "Pulcherrima",
+    "Achird",
+    "Zubenelgenubi",
+    "Vindemiatrix",
+    "Sadachbia",
+    "Sadaltager",
+    "Sulafat",
+]
+
+DEFAULT_TEXT = (
+    "Я сегодня дебажил фичу в Xcode, но получил странный Exception. "
+    "Мой PR уже апрувнули. Это стоило мне $4M, LMAO. Как же я устал."
+)
+
+
+def get_api_key() -> str:
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if api_key:
+        return api_key
+
     try:
-        res = subprocess.run(['zsh', '-i', '-c', 'printenv GEMINI_API_KEY'], capture_output=True, text=True)
-        lines = [l.strip() for l in res.stdout.split('\n') if l.strip()]
+        res = subprocess.run(
+            ["zsh", "-i", "-c", "printenv GEMINI_API_KEY"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        lines = [line.strip() for line in res.stdout.split("\n") if line.strip()]
         if lines:
-            API_KEY = lines[-1]
+            return lines[-1]
     except Exception:
         pass
 
-SERVICE_ACCOUNT_PATH = os.path.expanduser("~/dotfiles/symlinks/.zshrc.d/.local.gen-lang-client-0857982502-b644762a850f.json")
+    return ""
 
-text = "Я сегодня дебажил фичу в Xcode, но получил странный Exception. Мой PR уже апрувнули. Это стоило мне $4M, LMAO. Как же я устал."
 
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
+def write_wav_file(path: pathlib.Path, pcm_data: bytes) -> None:
+    with wave.open(str(path), "wb") as wf:
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(SAMPLE_WIDTH)
+        wf.setframerate(SAMPLE_RATE)
+        wf.writeframes(pcm_data)
 
-# 1. Legacy TTS (Russian model)
-try:
-    with open(SERVICE_ACCOUNT_PATH, 'r') as f:
-        sa = json.load(f)
-    
-    now = int(time.time())
-    header = {"alg": "RS256", "typ": "JWT"}
-    claim = {
-        "iss": sa["client_email"],
-        "scope": "https://www.googleapis.com/auth/cloud-platform",
-        "aud": "https://oauth2.googleapis.com/token",
-        "exp": now + 3600,
-        "iat": now
+
+async def generate_voice_demo(client, text: str, voice_name: str) -> bytes:
+    config = {
+        "response_modalities": ["AUDIO"],
+        "speech_config": {
+            "voice_config": {
+                "prebuilt_voice_config": {
+                    "voice_name": voice_name,
+                }
+            }
+        },
     }
-    
-    def b64url(s):
-        if isinstance(s, str): s = s.encode()
-        return base64.urlsafe_b64encode(s).replace(b'=', b'')
-    
-    msg = b64url(json.dumps(header)) + b"." + b64url(json.dumps(claim))
-    with tempfile.NamedTemporaryFile('w', delete=False) as kf:
-        kf.write(sa["private_key"])
-        kpath = kf.name
+
+    prompt = (
+        "Read the following text aloud exactly as written. "
+        "Do not add extra words.\n\n"
+        f"{text}"
+    )
+
+    audio_chunks: list[bytes] = []
+
+    async with client.aio.live.connect(model=MODEL_NAME, config=config) as session:
+        await session.send_realtime_input(text=prompt)
+
+        stream = session.receive()
+        while True:
+            try:
+                response = await asyncio.wait_for(anext(stream), timeout=RECEIVE_TIMEOUT_SECONDS)
+            except TimeoutError:
+                break
+            except StopAsyncIteration:
+                break
+
+            server_content = getattr(response, "server_content", None)
+            if not server_content:
+                continue
+
+            model_turn = getattr(server_content, "model_turn", None)
+            if model_turn and model_turn.parts:
+                for part in model_turn.parts:
+                    inline_data = getattr(part, "inline_data", None)
+                    if not inline_data or not inline_data.data:
+                        continue
+
+                    chunk = inline_data.data
+                    if isinstance(chunk, str):
+                        chunk = base64.b64decode(chunk)
+                    audio_chunks.append(chunk)
+
+            if getattr(server_content, "turn_complete", False):
+                break
+
+    if not audio_chunks:
+        raise RuntimeError(f"No audio returned for voice '{voice_name}'.")
+
+    return b"".join(audio_chunks)
+
+
+async def run(text: str, output_dir: pathlib.Path, voices: Iterable[str]) -> int:
     try:
-        p = subprocess.run(['openssl', 'dgst', '-sha256', '-sign', kpath], input=msg, capture_output=True, check=True)
-        sig = b64url(p.stdout)
-    finally:
-        os.unlink(kpath)
-    
-    jwt = msg + b"." + sig
-    data_str = f"grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion={jwt.decode()}".encode()
-    req_token = urllib.request.Request("https://oauth2.googleapis.com/token", data=data_str)
-    with urllib.request.urlopen(req_token, context=ctx) as resp:
-        token = json.loads(resp.read())["access_token"]
-        
-    url_legacy = "https://texttospeech.googleapis.com/v1/text:synthesize"
-    headers = {'Content-Type': 'application/json', 'Authorization': f"Bearer {token}"}
-    payload_legacy = {
-        "input": {"text": text},
-        "voice": {"languageCode": "ru-RU", "name": "ru-RU-Wavenet-D"},
-        "audioConfig": {"audioEncoding": "MP3"}
-    }
+        from google import genai
+    except ImportError:
+        print("Error: missing dependency 'google-genai'. Install: pip3 install --user google-genai")
+        return 1
 
-    req = urllib.request.Request(url_legacy, json.dumps(payload_legacy).encode('utf-8'), headers)
-    resp = urllib.request.urlopen(req, context=ctx)
-    data = json.loads(resp.read().decode())
-    with open("/tmp/legacy_ru.mp3", "wb") as f:
-        f.write(base64.b64decode(data['audioContent']))
-    print("Legacy TTS saved to /tmp/legacy_ru.mp3")
-except Exception as e:
-    print("Error Legacy:", e.read().decode() if hasattr(e, 'read') else str(e))
+    api_key = get_api_key()
+    if not api_key:
+        print("Error: GEMINI_API_KEY not found.")
+        return 1
 
-# 2. Gemini TTS
-url_gemini = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key={API_KEY}"
-payload_gemini = {
-    "contents": [{"role": "user", "parts": [{"text": text}]}],
-    "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": "Puck"}}}}
-}
-req = urllib.request.Request(url_gemini, json.dumps(payload_gemini).encode('utf-8'), {'Content-Type': 'application/json'})
-try:
-    resp = urllib.request.urlopen(req, context=ctx)
-    data = json.loads(resp.read().decode())
-    parts = data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
-    audio_data = None
-    for part in parts:
-        if 'inlineData' in part:
-            audio_data = base64.b64decode(part['inlineData']['data'])
-            break
-    if audio_data:
-        with wave.open("/tmp/gemini_ru.wav", 'wb') as wav_file:
-            wav_file.setnchannels(1)
-            wav_file.setsampwidth(2)
-            wav_file.setframerate(24000)
-            wav_file.writeframes(audio_data)
-        print("Gemini TTS saved to /tmp/gemini_ru.wav")
-except Exception as e:
-    print("Error Gemini:", e.read().decode() if hasattr(e, 'read') else str(e))
+    output_dir.mkdir(parents=True, exist_ok=True)
+    client = genai.Client(api_key=api_key)
+    voices = list(voices)
+
+    failures: list[tuple[str, str]] = []
+    generated = 0
+
+    for idx, voice_name in enumerate(voices, start=1):
+        print(f"[{idx}/{len(voices)}] Generating voice: {voice_name}")
+        try:
+            pcm = await generate_voice_demo(client=client, text=text, voice_name=voice_name)
+            out_path = output_dir / f"{idx:02d}_{voice_name.lower()}.wav"
+            write_wav_file(out_path, pcm)
+            generated += 1
+            print(f"  Saved: {out_path}")
+        except Exception as exc:
+            failures.append((voice_name, str(exc)))
+            print(f"  Failed: {voice_name} -> {exc}")
+
+    print("\nDone.")
+    print(f"Model: {MODEL_NAME}")
+    print(f"Generated: {generated}")
+    print(f"Failed: {len(failures)}")
+    print(f"Output dir: {output_dir}")
+
+    if failures:
+        print("\nFailures:")
+        for voice_name, message in failures:
+            print(f"- {voice_name}: {message}")
+
+    return 0 if not failures else 2
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Generate demo TTS files for all Gemini 3.1 Flash Live voices"
+    )
+    parser.add_argument(
+        "--text",
+        default=DEFAULT_TEXT,
+        help="Text to synthesize for every voice",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="/tmp/gemini_3_1_flash_live_tts_demos",
+        help="Directory where WAV files will be written",
+    )
+    parser.add_argument(
+        "--voices",
+        nargs="*",
+        default=None,
+        help="Optional custom subset of voices (default: all known voices)",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    voices = args.voices if args.voices else VOICE_NAMES
+    output_dir = pathlib.Path(args.output_dir)
+    rc = asyncio.run(run(text=args.text, output_dir=output_dir, voices=voices))
+    sys.exit(rc)
+
+
+if __name__ == "__main__":
+    main()
