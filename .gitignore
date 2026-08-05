@@ -2,4 +2,5 @@
 .local*
 symlinks/.zshrc.d/.local-shell.symlink
 *__pycache__*
+.idea/
 
