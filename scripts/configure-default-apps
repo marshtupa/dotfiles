@@ -1,0 +1,91 @@
+#!/usr/bin/env swift
+
+// Делает IntelliJ IDEA дефолтным приложением для кода, разметки и прочего текста.
+//
+// Зависимостей нет: скрипт дёргает LaunchServices напрямую (то же, что делают duti
+// и Finder → «Настроить всё…»), нужен только Xcode Command Line Tools.
+//
+// LaunchServices не наследует хендлер от родительского UTI к дочерним: назначить
+// public.source-code недостаточно, .py всё равно останется на своём обработчике.
+// Поэтому расширения перечисляем явно и каждое резолвим в конкретный UTI.
+
+import AppKit
+import Foundation
+import CoreServices
+import UniformTypeIdentifiers
+
+let editorBundleID = "com.jetbrains.intellij"
+
+// Типы, которые macOS знает сама
+let contentTypes = [
+    "public.plain-text",
+    "public.source-code",
+    "public.script",
+    "public.shell-script",
+    "public.python-script",
+    "public.ruby-script",
+    "public.perl-script",
+    "public.php-script",
+    "public.json",
+    "public.xml",
+    "public.yaml",
+    "public.css",
+    "public.log",
+    "net.daringfireball.markdown",
+]
+
+// Расширения — для всего, что иначе уезжает в public.data или в чужое приложение
+let fileExtensions = [
+    // JVM
+    "java", "kt", "kts", "scala", "groovy", "gradle",
+    // скрипты и системные языки
+    "py", "rb", "php", "pl", "lua", "sh", "bash", "zsh", "fish", "ps1", "r",
+    "go", "rs", "c", "h", "cpp", "cc", "cxx", "hpp", "hxx", "m", "mm", "swift", "cs", "dart",
+    "ex", "exs", "erl", "hs", "clj", "cljs",
+    // web
+    // .ts у macOS — это public.mpeg-2-transport-stream, так что видео с таким
+    // расширением тоже поедет в IDEA. Осознанный размен ради TypeScript
+    "js", "jsx", "mjs", "cjs", "ts", "tsx", "vue", "svelte",
+    // html/htm/xhtml сознательно не трогаем: public.html привязан к настройке
+    // «браузер по умолчанию», macOS переспрашивает и всё равно отдаёт браузеру
+    "css", "scss", "sass", "less",
+    // разметка и конфиги
+    "json", "json5", "yaml", "yml", "toml", "ini", "cfg", "conf", "properties", "env",
+    "xml", "xsd", "xsl", "xslt",
+    "md", "markdown", "mdx", "rst", "adoc", "tex",
+    // прочий текст
+    "txt", "log", "sql", "diff", "patch",
+]
+
+guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: editorBundleID) != nil else {
+    print("  \(editorBundleID) не установлен — пропускаю")
+    exit(0)
+}
+
+// Расширение → UTI. Для неизвестных macOS типов вернётся динамический dyn.*,
+// он стабилен для конкретного расширения, так что назначать хендлер на него можно.
+var identifiers = contentTypes
+for ext in fileExtensions {
+    guard let type = UTType(filenameExtension: ext) else {
+        print("  \(ext): не удалось определить тип, пропускаю")
+        continue
+    }
+    identifiers.append(type.identifier)
+}
+
+var failed: [String] = []
+for identifier in Set(identifiers).sorted() {
+    let status = LSSetDefaultRoleHandlerForContentType(
+        identifier as CFString, .all, editorBundleID as CFString
+    )
+    if status != noErr {
+        failed.append("\(identifier) (OSStatus \(status))")
+    }
+}
+
+if failed.isEmpty {
+    print("  Дефолтный редактор: \(editorBundleID)")
+} else {
+    print("  Дефолтный редактор: \(editorBundleID), кроме:")
+    failed.forEach { print("    \($0)") }
+}

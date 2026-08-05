@@ -86,6 +86,10 @@ if [[ "$(uname)" == "Darwin" ]]; then
   echo "Defaults configured!" | indent
   echo
 
+  title "Configuring default apps..."
+  ./scripts/configure-default-apps
+  echo
+
 fi
 
 install_simlinks_to_home
