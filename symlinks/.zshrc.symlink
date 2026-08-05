@@ -32,3 +32,9 @@ export PATH="/opt/homebrew/bin:$PATH"
 
 # Added by Antigravity
 export PATH="/Users/marshtupa/.antigravity/antigravity/bin:$PATH"
+export PATH="$PATH:$(go env GOPATH)/bin"
+
+# Java: JDK 21 (LTS) по умолчанию. Путь резолвится через симлинк в
+# /Library/Java/JavaVirtualMachines, поэтому переживает обновления brew.
+export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
+export PATH="$JAVA_HOME/bin:$PATH"

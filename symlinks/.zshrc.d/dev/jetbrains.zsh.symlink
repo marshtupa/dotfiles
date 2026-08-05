@@ -1,0 +1,26 @@
+########################################### JETBRAINS ##########################################
+# https://www.jetbrains.com/help/idea/working-with-the-ide-features-from-command-line.html
+
+function _jetbrains_launch() {
+    local bundle="/Applications/$1.app"; shift
+
+    if [ ! -d "$bundle" ]; then
+        echo "$bundle not found" >&2
+        return 1
+    fi
+
+    # open(1) launches the app through LaunchServices and does not pass the shell cwd,
+    # so relative paths have to be expanded here
+    local args=() arg
+    for arg in "$@"; do
+        if [ -e "$arg" ]; then args+=("${arg:A}"); else args+=("$arg"); fi
+    done
+    (( ${#args} == 0 )) && args=("$PWD")
+
+    open -na "$bundle" --args "${args[@]}"
+}
+
+function idea()     { _jetbrains_launch "IntelliJ IDEA" "$@" }
+function pycharm()  { _jetbrains_launch "PyCharm"       "$@" }
+function goland()   { _jetbrains_launch "GoLand"        "$@" }
+function datagrip() { _jetbrains_launch "DataGrip"      "$@" }
