@@ -54,6 +54,7 @@ cask "yandex-music"
 cask "alt-tab"
 cask "betterdisplay"
 cask "karabiner-elements"
+cask "t3-code"
 
 vscode "akamud.vscode-theme-onedark"
 vscode "janisdd.vscode-edit-csv"
